@@ -1,10 +1,10 @@
 {
-  "name": "binance-dca-bot",
+  "name": "nobitex-dca-bot",
   "version": "2.0.0",
-  "description": "A bot to automatically DCA (Dollar-Cost Average) buy cryptocurrency on Binance",
+  "description": "A bot to automatically DCA (Dollar-Cost Average) buy cryptocurrency on nobitex",
   "main": "src/bot.js",
   "type": "module",
-  "author": "Luke Liasi <lukeliasi@gmail.com>",
+  "author": "Zahra Aghli <zahraaghli13@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -31,6 +31,6 @@
     "dca",
     "binance",
     "dollar-cost-averaging",
-    "binance-api"
+    "nobitex-api"
   ]
 }
