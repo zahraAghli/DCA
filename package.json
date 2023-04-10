@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lukeliasi/binance-dca-bot.git"
+    "url": "https://github.com/zahraAghli/DCA"
   },
   "scripts": {
     "start": "node src/bot.js"
@@ -29,7 +29,6 @@
     "ethereum",
     "cryptocurrency",
     "dca",
-    "binance",
     "dollar-cost-averaging",
     "nobitex-api"
   ]
