@@ -23,7 +23,7 @@ exports.getHistory = (req, res) => {
   db.getHistory()
     .then((result) => {
       res.statusCode=200;
-      res.send('Get history successfully')
+      res.json({message:'Get history successfully'})
     })
     .catch((err) => {
       res.statusCode=400;
@@ -34,7 +34,7 @@ exports.getList = (req, res) => {
   db.getList()
     .then((result) => {
       res.statusCode=200;
-      res.send('Get list successfully')
+      res.json({message:'Get list successfully'})
     })
     .catch((err) => {
       res.statusCode=400;
