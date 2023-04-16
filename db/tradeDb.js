@@ -15,8 +15,8 @@ MongoClient.connect(url, function (err, db) {
  */
 exports.addOrder = async () => {
   let symbolList = await dbo.collection("symbolList").find().toArray();
-  symbolList = us.group(symbolList, 'symbol');
-  const users = await dbo.collection("user").find();
+  symbolList = us.groupBy(symbolList, 'symbol');
+  const users = await dbo.collection("user").find().toArray();
   for (const user of users) {
     for (const symbol of user.favorite) {
       let lastTrade = await dbo.collection("trade").find({
@@ -29,16 +29,20 @@ exports.addOrder = async () => {
         if (changePricePercent >= symbolInfo.takeProfit) {
           //takeProfit
           const price = symbolInfo.lastPrice - lastTrade.price;
-          const amount = price/symbolInfo.lastPrice;
-          nobitexOrder(symbol,user.token,'sell', price, amount)
+          const amount = price / symbolInfo.lastPrice;
+          nobitexOrder(symbol, user.token, 'sell', price, amount)
         } else if (-1 * changePricePercent > symbolInfo.stopLoss) {
           //goingDown
           const price = symbolInfo.lastPrice;
-          const amount = lastTrade.value/lastTrade.price;
-          nobitexOrder(symbol,user.token,'buy', price, amount)
+          const amount = lastTrade.value / symbolInfo.lastPrice;
+          nobitexOrder(symbol, user.token, 'buy', price, amount)
         }
+      } else {
+        //first trade
+        const price = symbolInfo.lastPrice;
+        const amount = 0.1*user.assert / symbolInfo.lastPrice;
+        nobitexOrder(symbol, user.token, 'buy', price, amount)
       }
-
     }
   }
 
@@ -51,7 +55,7 @@ exports.addOrder = async () => {
  * @param {string} quantity
  * @param {string} quoteOrderQty
  */
-async function nobitexOrder(symbol,token,type, price, amount) {
+async function nobitexOrder(symbol, token, type, price, amount) {
 
   return new Promise(resolve => {
 
@@ -75,7 +79,7 @@ async function nobitexOrder(symbol,token,type, price, amount) {
       };
       request(options, async function (error, response) {
         if (error) console.error(error);
-        resolve(JSON.parse(response.body))
+        resolve(JSON.parse(response.body))//save to trade
       });
 
     } catch (error) {
