@@ -1,13 +1,24 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const indexRouter = require('./routes/index');
+const marketRouter = require('./routes/marketRoute');
+const userRouter = require('./routes/userRoute');
+const tradeRouter = require('./routes/tradeRoute');
+const MongoClient = require('mongodb').MongoClient;
+const Config = require('./src/config')
+// .initMongo()
+// .then((res)=>console.log(res))
+// .catch((err)=>{
+//   console.log(err)})
 
-var indexRouter = require('./routes/index');
-var marketRouter = require('./routes/marketRoute');
-var userRouter = require('./routes/userRoute');
-var tradeRouter = require('./routes/tradeRoute');
+const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
+MongoClient.connect(url, function (err, db) {
+  if (err) throw err;
+  Config.mongoDb = db.db("DCA");
+});
 
 var app = express();
 
@@ -17,22 +28,20 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
 app.use('/market', marketRouter);
 app.use('/user', userRouter);
 app.use('/trade', tradeRouter);
-
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

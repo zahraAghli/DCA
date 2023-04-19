@@ -1,4 +1,3 @@
-const moment = require('moment-jalaali');
 const MongoClient = require('mongodb').MongoClient;
 const us = require('underscore');
 const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
