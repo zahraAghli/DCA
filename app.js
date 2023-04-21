@@ -7,20 +7,7 @@ const indexRouter = require('./routes/index');
 const marketRouter = require('./routes/marketRoute');
 const userRouter = require('./routes/userRoute');
 const tradeRouter = require('./routes/tradeRoute');
-const MongoClient = require('mongodb').MongoClient;
-const Config = require('./src/config')
-// .initMongo()
-// .then((res)=>console.log(res))
-// .catch((err)=>{
-//   console.log(err)})
-
-const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  Config.mongoDb = db.db("DCA");
-});
-
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -1,24 +1,19 @@
-const MongoClient = require('mongodb').MongoClient;
-const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
-let dbo;
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  dbo = db.db("DCA");
-})
+const config= require('../bin/config')
 
 /**
  *
  * @description get cryptoCurrency list from nobitex state
  * @returns {Promise<any>}
  */
-exports.register = async ({username, password, token, favorite}) => {
+exports.register = async ({username, password, token, favorite,asset}) => {
   const user = {
     username,
     password,
     token,
-    favorite
+    favorite,
+    asset
   }
-  const res = await dbo.collection("user").updateOne(
+  const res = await config.mongoDb.collection("user").updateOne(
     {username: user.username},
     {$set: user},
     {upsert: true})

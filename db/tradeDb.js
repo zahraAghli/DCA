@@ -1,46 +1,41 @@
-const MongoClient = require('mongodb').MongoClient;
 const us = require('underscore');
-const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
-let dbo;
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  dbo = db.db("DCA");
-})
-
+const config = require('../bin/config');
+const request = require('request');
 /**
  *
  * @description get cryptoCurrency list from nobitex state
  * @returns {Promise<any>}
  */
 exports.addOrder = async () => {
-  let symbolList = await dbo.collection("symbolList").find().toArray();
+  let symbolList = await config.mongoDb.collection("symbolList").find().toArray();
   symbolList = us.groupBy(symbolList, 'symbol');
-  const users = await dbo.collection("user").find().toArray();
+  const users = await config.mongoDb.collection("user").find().toArray();
   for (const user of users) {
     for (const symbol of user.favorite) {
-      let lastTrade = await dbo.collection("trade").find({
+      let lastTrade = await config.mongoDb.collection("trade").find({
         symbol: symbol,
         user: user.username
       }).sort({date: -1}).limit(1).toArray();
-      if (lastTrade) {
-        const symbolInfo = symbolList[symbol][0];
+      const symbolInfo = symbolList[symbol][0];
+      if (lastTrade.length) {
         const changePricePercent = (symbolInfo.lastPrice - lastTrade.price) / lastTrade.price;
         if (changePricePercent >= symbolInfo.takeProfit) {
           //takeProfit
           const price = symbolInfo.lastPrice - lastTrade.price;
           const amount = price / symbolInfo.lastPrice;
-          nobitexOrder(symbol, user.token, 'sell', price, amount)
+          await nobitexOrder(symbol, user.token, 'sell', price, amount)
         } else if (-1 * changePricePercent > symbolInfo.stopLoss) {
           //goingDown
           const price = symbolInfo.lastPrice;
-          const amount = lastTrade.value / symbolInfo.lastPrice;
-          nobitexOrder(symbol, user.token, 'buy', price, amount)
+          const amount = 0.1*user.asset / symbolInfo.lastPrice;
+          await nobitexOrder(symbol, user.token, 'buy', price, amount)
         }
-      } else {
+      }
+      else {
         //first trade
         const price = symbolInfo.lastPrice;
-        const amount = 0.1*user.assert / symbolInfo.lastPrice;
-        nobitexOrder(symbol, user.token, 'buy', price, amount)
+        const amount = (0.1*user.asset / symbolInfo.lastPrice).toFixed(2);
+        await nobitexOrder(symbol, user.token, 'buy', price, amount)
       }
     }
   }
@@ -55,21 +50,19 @@ exports.addOrder = async () => {
  * @param {string} quoteOrderQty
  */
 async function nobitexOrder(symbol, token, type, price, amount) {
-
   return new Promise(resolve => {
-
-    const res = symbol.match(/USDT|IRT/)
+    const index = symbol.search(/IRT|USDT$/)
     try {
       const params = {
-        srcCurrency: res[0],
-        dstCurrency: res[1],
+        srcCurrency: symbol.substr(0,index),
+        dstCurrency: symbol.substr(index),
         type,
         mode: 'default',
         execution: 'limit',//or market
         price,
-        amount,
+        amount
       }
-      const url = `https://api.nobiltex.ir/market/orders/add`;
+      const url = `${config.nobitexUrl}/market/orders/add`;
       const options = {
         method: 'POST',
         url,

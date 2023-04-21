@@ -1,19 +1,12 @@
 const moment = require('moment-jalaali');
-const MongoClient = require('mongodb').MongoClient;
 const axios = require('axios');
-
-const url = "mongodb://zahra.aghli:d0b34lSSHas4Yc43VS@127.0.0.1:27017/admin";
-let dbo;
-MongoClient.connect(url, function (err, db) {
-  if (err) throw err;
-  dbo = db.db("DCA");
-})
+const config = require ('../bin/config')
 /**
  * @description get symbols history
  * @returns {Promise<string>}
  */
 exports.getHistory = async () => {
-  const symbolList = await dbo.collection("symbolList").find({}).toArray();
+  const symbolList = await config.mongoDb.collection("symbolList").find({}).toArray();
   for (const symbol of symbolList) {
     try {
       await getSymbolHistory(symbol.symbol)
@@ -30,7 +23,7 @@ exports.getHistory = async () => {
  * @returns {Promise<unknown>}
  */
 async function getSymbolHistory(symbol) {
-  const lastData = await dbo.collection("symbolHistory").find({symbol}).sort({"date": -1}).limit(1).toArray();
+  const lastData = await config.mongoDb.collection("symbolHistory").find({symbol}).sort({"date": -1}).limit(1).toArray();
   const startDate = lastData[0]?.date || Math.floor(new Date('2009.01.01').getTime() / 1000)
   const endDate = Math.floor(new Date().getTime() / 1000)
   return new Promise(async (resolve, reject) => {
@@ -57,11 +50,11 @@ async function getSymbolHistory(symbol) {
  */
 async function nobitexHistory(symbol,startDate,endDate,page) {
   return new Promise((resolve, reject) => {
-    const config = {
+    const obj = {
       method: 'get',
       url: `https://api.nobitex.ir/market/udf/history?symbol=${symbol}&resolution=D&from=${startDate}&to=${endDate}&page=${page}`,
     };
-    axios(config)
+    axios(obj)
       .then(async function (response) {
         let data = response.data;
         const dataLength = data?.t?.length || 0;
@@ -76,7 +69,7 @@ async function nobitexHistory(symbol,startDate,endDate,page) {
             volume: data.v[i],
             jalaaliDate: moment(new Date(data.t[i] * 1000)).format('jYYYY/jMM/jDD'),
           }
-          await dbo.collection("symbolHistory").updateOne(
+          await config.mongoDb.collection("symbolHistory").updateOne(
             {symbol: output.symbol, date: output.date},
             {$set: output},
             {upsert: true})
@@ -124,7 +117,7 @@ exports.getList = () => {
             isClosed: item.isClosed
           }
 
-          await dbo.collection("symbolList").updateOne(
+          await Config.mongoDb.collection("symbolList").updateOne(
             {symbol: output.symbol},
             {$set: output},
             {upsert: true})
