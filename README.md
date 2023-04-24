@@ -17,7 +17,7 @@ This bot allows you to sit back and relax while it automatically invests in cryp
   - [Configure the bot](#configure-the-bot)
     - [Environment Variables (.env)](#environment-variables-env)
   - [Running the bot](#running-the-bot)
-  - 
+
 
 
 ### Create the project
@@ -41,7 +41,7 @@ Rename the `env.example` to `.env` file for a quick bootstrap.
 These are all the supported settings:
 
 | Name             | Description                                                                                  |           Required            |
-| ---------------- | -------------------------------------------------------------------------------------------- | :---------------------------: |           |
+| ---------------- | -------------------------------------------------------------------------------------------- | :---------------------------: |          
 | MONGODB_URI      | If using MongoDb Atlas this is the connection string                                         |              YES               |
 
 ## Running the project
