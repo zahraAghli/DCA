@@ -42,8 +42,8 @@ These are all the supported settings:
 
 | Name             | Description                                                                                  |           Required            |
 | ---------------- | -------------------------------------------------------------------------------------------- | :---------------------------: |          
-| MONGODB_URI      | If using MongoDb Atlas this is the connection string                                         |              YES               |
-
+| MONGODB_URI      | If using MongoDb Atlas this is the connection string                                         |              YES               |      
+| NOBITEX_URI      | Nobitex URI for connection to Apis                                     |              YES               |
 ## Running the project
 
 Use this command to start the bot: `npm run start`. The program must stay running, and it will execute the buy orders at the defined schedules using cron jobs.
