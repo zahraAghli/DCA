@@ -23,7 +23,7 @@ exports.addOrder = async () => {
           //takeProfit
           const price = symbolInfo.lastPrice - lastTrade.price;
           const amount = price / symbolInfo.lastPrice;
-          await nobitexOrder(symbol, user.token, 'sell', price, amount)
+          await nobitexOrder(symbol, user.token, 'sell', symbolInfo.lastPrice, amount)
         } else if (-1 * changePricePercent > symbolInfo.stopLoss) {
           //goingDown
           const price = symbolInfo.lastPrice;

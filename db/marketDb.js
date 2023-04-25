@@ -1,6 +1,6 @@
 const moment = require('moment-jalaali');
 const axios = require('axios');
-const config = require ('../bin/config')
+const config = require('../bin/config')
 /**
  * @description get symbols history
  * @returns {Promise<string>}
@@ -24,13 +24,13 @@ exports.getHistory = async () => {
  */
 async function getSymbolHistory(symbol) {
   const lastData = await config.mongoDb.collection("symbolHistory").find({symbol}).sort({"date": -1}).limit(1).toArray();
-  const startDate = lastData[0]?.date || Math.floor(new Date('2009.01.01').getTime() / 1000)
-  const endDate = Math.floor(new Date().getTime() / 1000)
+  const startDate = lastData[0]?.date || Math.floor(new Date('2022.01.01').getTime() / 1000)
+  const endDate = Math.floor(new Date(moment().format('YYYY/MM/DD')).getTime() / 1000)
   return new Promise(async (resolve, reject) => {
     for (let page = 1; ; page++) {
       try {
 
-        if (await nobitexHistory( symbol,startDate,endDate,page) < 499) break;// اگر تعداد کندل ها بیش از 499 باشن بایستی page بعدی را هم بگیریم
+        if (await nobitexHistory(symbol, startDate, endDate, page) < 499) break;// اگر تعداد کندل ها بیش از 499 باشن بایستی page بعدی را هم بگیریم
       } catch (e) {
         reject(e)
       }
@@ -48,11 +48,11 @@ async function getSymbolHistory(symbol) {
  * @param page pageNum
  * @returns {Promise<unknown>}
  */
-async function nobitexHistory(symbol,startDate,endDate,page) {
+async function nobitexHistory(symbol, startDate, endDate, page) {
   return new Promise((resolve, reject) => {
     const obj = {
       method: 'get',
-      url: `https://api.nobitex.ir/market/udf/history?symbol=${symbol}&resolution=D&from=${startDate}&to=${endDate}&page=${page}`,
+      url: `https://api.nobitex.ir/market/udf/history?symbol=${symbol}&resolution=1&from=${startDate}&to=${endDate}&page=${page}`,
     };
     axios(obj)
       .then(async function (response) {
@@ -67,7 +67,7 @@ async function nobitexHistory(symbol,startDate,endDate,page) {
             lowPrice: data.l[i],
             closePrice: data.c[i],
             volume: data.v[i],
-            jalaaliDate: moment(new Date(data.t[i] * 1000)).format('jYYYY/jMM/jDD'),
+            jalaaliDate: moment(new Date(data.t[i] * 1000)).format('jYYYY/jMM/jDD HH:mm:ss'),
           }
           await config.mongoDb.collection("symbolHistory").updateOne(
             {symbol: output.symbol, date: output.date},
@@ -119,7 +119,7 @@ exports.getList = () => {
 
           await Config.mongoDb.collection("symbolList").updateOne(
             {symbol: output.symbol},
-            {$set: output},
+            {$set: output, $setOnInsert: {takeProfit: null, stopLoss: null}},
             {upsert: true})
           result.push(output)
         }
