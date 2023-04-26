@@ -24,7 +24,7 @@ exports.getHistory = async () => {
  */
 async function getSymbolHistory(symbol) {
   const lastData = await config.mongoDb.collection("symbolHistory").find({symbol}).sort({"date": -1}).limit(1).toArray();
-  const startDate = lastData[0]?.date || Math.floor(new Date('2022.01.01').getTime() / 1000)
+  const startDate = lastData[0]?.date || Math.floor(new Date('2022/01/01').getTime() / 1000)
   const endDate = Math.floor(new Date(moment().format('YYYY/MM/DD')).getTime() / 1000)
   return new Promise(async (resolve, reject) => {
     for (let page = 1; ; page++) {
