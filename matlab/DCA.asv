@@ -1,0 +1,7 @@
+clear;
+ObjectiveFunction = @ps_example;
+lb = [0.02 0.02 0.1];   % Lower bounds
+ub = [0.2 0.2 0.9];  % Upper bounds
+%rng default % For reproducibility
+nvars = 3;
+[x,fval] = ga(ObjectiveFunction,nvars,[],[],[],[],lb,ub)
